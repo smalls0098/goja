@@ -1,6 +1,12 @@
 package goja
 
-import "fmt"
+var GT Tracer
+
+type Tracer interface {
+	String(tag TraceTag, vs ...any)
+	Array(tag TraceTag, vs ...any)
+	Operation(tag TraceTag, vs ...any)
+}
 
 type TraceTag string
 
@@ -32,12 +38,19 @@ const (
 )
 
 func traceOperation(tag TraceTag, vs ...any) {
-
+	if GT != nil {
+		GT.Operation(tag, vs...)
+	}
 }
 
 func traceString(tag TraceTag, vs ...any) {
+	if GT != nil {
+		GT.String(tag, vs...)
+	}
 }
 
 func traceArray(tag TraceTag, vs ...any) {
-	fmt.Println(tag, vs)
+	if GT != nil {
+		GT.Array(tag, vs...)
+	}
 }
