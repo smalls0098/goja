@@ -212,6 +212,8 @@ func (a *arrayObject) setOwnIdx(idx valueInt, val Value, throw bool) bool {
 }
 
 func (a *arrayObject) _setOwnIdx(idx uint32, val Value, throw bool) bool {
+	traceArray(TraceTagArraySetOwnIdx, a, idx, val, throw)
+
 	var prop Value
 	if idx < uint32(len(a.values)) {
 		prop = a.values[idx]
@@ -257,6 +259,8 @@ func (a *arrayObject) _setOwnIdx(idx uint32, val Value, throw bool) bool {
 }
 
 func (a *arrayObject) setOwnStr(name unistring.String, val Value, throw bool) bool {
+	traceArray(TraceTagArraySetOwnStr, a, val, throw)
+
 	if idx := strToArrayIdx(name); idx != math.MaxUint32 {
 		return a._setOwnIdx(idx, val, throw)
 	} else {

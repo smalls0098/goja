@@ -454,10 +454,12 @@ func (s unicodeString) baseObject(r *Runtime) *Object {
 }
 
 func (s unicodeString) CharAt(idx int) uint16 {
+	traceString(TraceTagStringCharAt, s, idx, s[idx+1])
 	return s[idx+1]
 }
 
 func (s unicodeString) Length() int {
+	traceString(TraceTagStringLength, s, len(s)-1)
 	return len(s) - 1
 }
 
@@ -467,6 +469,7 @@ func (s unicodeString) Concat(other String) String {
 		b := make(unicodeString, len(s)+len(u)-1)
 		copy(b, s)
 		copy(b[len(s):], u[1:])
+		traceString(TraceTagStringConcat, s, b)
 		return b
 	}
 	b := make([]uint16, len(s)+len(a))
@@ -475,6 +478,7 @@ func (s unicodeString) Concat(other String) String {
 	for i := 0; i < len(a); i++ {
 		b1[i] = uint16(a[i])
 	}
+	traceString(TraceTagStringConcat, s, unicodeString(b))
 	return unicodeString(b)
 }
 
@@ -485,6 +489,7 @@ func (s unicodeString) Substring(start, end int) String {
 			b := make(unicodeString, end-start+1)
 			b[0] = unistring.BOM
 			copy(b[1:], ss)
+			traceString(TraceTagStringSubstring, s, start, end, b)
 			return b
 		}
 	}
@@ -492,6 +497,7 @@ func (s unicodeString) Substring(start, end int) String {
 	for i, c := range ss {
 		as[i] = byte(c)
 	}
+	traceString(TraceTagStringSubstring, s, start, end, asciiString(as))
 	return asciiString(as)
 }
 

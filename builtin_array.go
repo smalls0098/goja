@@ -27,6 +27,7 @@ func setArrayValues(a *arrayObject, values []Value) *arrayObject {
 	a.values = values
 	a.length = uint32(len(values))
 	a.objCount = len(values)
+	traceArray(TraceTagArraySet, values)
 	return a
 }
 

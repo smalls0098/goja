@@ -1305,6 +1305,8 @@ func (_add) exec(vm *vm) {
 		}
 	}
 
+	traceOperation(TraceTagADD, left, right, ret)
+
 	vm.stack[vm.sp-2] = ret
 	vm.sp--
 	vm.pc++
@@ -1345,6 +1347,8 @@ func (_sub) exec(vm *vm) {
 	}
 
 	result = floatToValue(left.ToFloat() - right.ToFloat())
+
+	traceOperation(TraceTagSUB, left, right, result)
 end:
 	vm.sp--
 	vm.stack[vm.sp-1] = result
@@ -1392,6 +1396,8 @@ func (_mul) exec(vm *vm) {
 
 	result = floatToValue(left.ToFloat() * right.ToFloat())
 
+	traceOperation(TraceTagMUL, left, right, result)
+
 end:
 	vm.sp--
 	vm.stack[vm.sp-1] = result
@@ -1425,6 +1431,8 @@ func (_exp) exec(vm *vm) {
 	}
 
 	result = pow(x, y)
+
+	traceOperation(TraceTagEXP, x, y, result)
 end:
 	vm.stack[vm.sp-1] = result
 	vm.pc++
@@ -1504,6 +1512,8 @@ func (_div) exec(vm *vm) {
 	}
 
 	result = floatToValue(left / right)
+
+	traceOperation(TraceTagDIV, leftValue, rightValue, result)
 
 end:
 	vm.sp--
@@ -1593,6 +1603,8 @@ func (_neg) exec(vm *vm) {
 		result = valueFloat(f)
 	}
 
+	traceOperation(TraceTagNEG, operand, result)
+
 	vm.stack[vm.sp-1] = result
 	vm.pc++
 }
@@ -1616,10 +1628,16 @@ func (_inc) exec(vm *vm) {
 	switch n := v.(type) {
 	case *valueBigInt:
 		v = (*valueBigInt)(new(big.Int).Add((*big.Int)(n), big.NewInt(1)))
+
+		traceOperation(TraceTagINC, n, v)
 	case valueInt:
 		v = intToValue(int64(n + 1))
+
+		traceOperation(TraceTagINC, n, v)
 	default:
 		v = valueFloat(n.ToFloat() + 1)
+
+		traceOperation(TraceTagINC, n, v)
 	}
 
 	vm.stack[vm.sp-1] = v
@@ -1636,10 +1654,16 @@ func (_dec) exec(vm *vm) {
 	switch n := v.(type) {
 	case *valueBigInt:
 		v = (*valueBigInt)(new(big.Int).Sub((*big.Int)(n), big.NewInt(1)))
+
+		traceOperation(TraceTagDEC, n, v)
 	case valueInt:
 		v = intToValue(int64(n - 1))
+
+		traceOperation(TraceTagDEC, n, v)
 	default:
 		v = valueFloat(n.ToFloat() - 1)
+
+		traceOperation(TraceTagDEC, n, v)
 	}
 
 	vm.stack[vm.sp-1] = v
@@ -1666,6 +1690,8 @@ func (_and) exec(vm *vm) {
 	}
 
 	result = intToValue(int64(toInt32(left) & toInt32(right)))
+
+	traceOperation(TraceTagAND, left, right, result)
 end:
 	vm.stack[vm.sp-2] = result
 	vm.sp--
@@ -1692,6 +1718,8 @@ func (_or) exec(vm *vm) {
 	}
 
 	result = intToValue(int64(toInt32(left) | toInt32(right)))
+
+	traceOperation(TraceTagOR, left, right, result)
 end:
 	vm.stack[vm.sp-2] = result
 	vm.sp--
@@ -1718,6 +1746,8 @@ func (_xor) exec(vm *vm) {
 	}
 
 	result = intToValue(int64(toInt32(left) ^ toInt32(right)))
+
+	traceOperation(TraceTagXOR, left, right, result)
 end:
 	vm.stack[vm.sp-2] = result
 	vm.sp--
@@ -1733,8 +1763,12 @@ func (_bnot) exec(vm *vm) {
 	switch n := toNumeric(v).(type) {
 	case *valueBigInt:
 		v = (*valueBigInt)(new(big.Int).Not((*big.Int)(n)))
+
+		traceOperation(TraceTagBNOT, n, v)
 	default:
 		v = intToValue(int64(^toInt32(n)))
+
+		traceOperation(TraceTagBNOT, n, v)
 	}
 	vm.stack[vm.sp-1] = v
 	vm.pc++
@@ -1765,6 +1799,8 @@ func (_sal) exec(vm *vm) {
 	}
 
 	result = intToValue(int64(toInt32(left) << (toUint32(right) & 0x1F)))
+
+	traceOperation(TraceTagSAL, left, right, result)
 end:
 	vm.stack[vm.sp-2] = result
 	vm.sp--
@@ -1796,6 +1832,8 @@ func (_sar) exec(vm *vm) {
 	}
 
 	result = intToValue(int64(toInt32(left) >> (toUint32(right) & 0x1F)))
+
+	traceOperation(TraceTagSAR, left, right, result)
 end:
 	vm.stack[vm.sp-2] = result
 	vm.sp--
@@ -1817,7 +1855,11 @@ func (_shr) exec(vm *vm) {
 		panic(vm.r.NewTypeError("BigInts have no unsigned right shift, use >> instead"))
 	}
 
-	vm.stack[vm.sp-2] = intToValue(int64(toUint32(left) >> (toUint32(right) & 0x1F)))
+	result := intToValue(int64(toUint32(left) >> (toUint32(right) & 0x1F)))
+
+	traceOperation(TraceTagSHR, left, right, result)
+
+	vm.stack[vm.sp-2] = result
 	vm.sp--
 	vm.pc++
 }

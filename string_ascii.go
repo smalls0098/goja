@@ -309,10 +309,12 @@ func (s asciiString) hash(hash *maphash.Hash) uint64 {
 }
 
 func (s asciiString) CharAt(idx int) uint16 {
+	traceString(TraceTagStringCharAt, s, idx, uint16(s[idx]))
 	return uint16(s[idx])
 }
 
 func (s asciiString) Length() int {
+	traceString(TraceTagStringLength, s, len(s))
 	return len(s)
 }
 
@@ -325,12 +327,15 @@ func (s asciiString) Concat(other String) String {
 			b[i+1] = uint16(s[i])
 		}
 		copy(b[len(s)+1:], u[1:])
+		traceString(TraceTagStringConcat, s, unicodeString(b))
 		return unicodeString(b)
 	}
+	traceString(TraceTagStringConcat, s, a, s+a)
 	return s + a
 }
 
 func (s asciiString) Substring(start, end int) String {
+	traceString(TraceTagStringSubstring, s, start, end, s[start:end], []byte(s[start:end]))
 	return s[start:end]
 }
 
